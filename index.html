@@ -3,148 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Informe de Resultados Académicos</title>
+    <title>Informe Interactivo de Resultados</title>
     <style>
         :root {
-            --color-superior: #28a745;
-            --color-alto: #007bff;
-            --color-basico: #ffc107;
-            --color-bajo: #dc3545;
-            --color-header-bg: #343a40;
-            --color-border: #dee2e6;
-            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            --container-bg: #ffffff;
-            --page-bg: #f4f4f9;
+            /* Paleta de colores inspirada en el nuevo diseño */
+            --primary-color: #0056b3;
+            --secondary-color: #007bff;
+            --background-color: #f8f9fa;
+            --font-color: #333;
+            --header-bg: #343a40;
+            --header-font: #ffffff;
+            --border-color: #dee2e6;
+            --row-hover: #e9ecef;
+            
+            /* Colores pastel para las calificaciones */
+            --score-superior-bg: #d4edda; --score-superior-text: #155724;
+            --score-alto-bg: #cce5ff; --score-alto-text: #004085;
+            --score-basico-bg: #fff3cd; --score-basico-text: #856404;
+            --score-bajo-bg: #f8d7da; --score-bajo-text: #721c24;
         }
+
         body {
-            font-family: var(--font-family);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: var(--page-bg);
-            color: #333;
+            background-color: var(--background-color);
+            color: var(--font-color);
+            line-height: 1.6;
         }
+
         .container {
             max-width: 1600px;
             margin: auto;
-            background: var(--container-bg);
+            background: #fff;
             padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
         }
+        
+        /* Header centrado y más limpio */
         .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--border-color);
             padding-bottom: 20px;
-            border-bottom: 2px solid var(--color-border);
-            margin-bottom: 20px;
         }
         .header img {
-            height: 60px;
+            max-height: 70px;
+            margin-bottom: 15px;
         }
-        .school-info {
-            text-align: right;
-        }
-        .school-info h1 {
+        .header h1 {
+            color: var(--primary-color);
             margin: 0;
-            font-size: 1.8em;
-            color: #0056b3;
+            font-size: 2.2em;
         }
-        .school-info p {
-            margin: 0;
+        .header p {
+            margin: 5px 0 0;
             color: #6c757d;
+            font-size: 1.1em;
         }
+
+        /* Filtros con etiquetas para mejor UX */
         .filters-card {
-            background-color: #f8f9fa;
-            border: 1px solid var(--color-border);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            align-items: center;
-        }
-        .filters-card input[type="text"] {
-            grid-column: span 2; /* Make search bar wider */
-        }
-        .filters-card select, .filters-card input {
-            padding: 10px 12px;
-            border: 1px solid var(--color-border);
-            border-radius: 4px;
-            font-size: 1em;
-            font-family: var(--font-family);
-            width: 100%;
-            box-sizing: border-box;
-        }
-        .view-controls {
-            text-align: center;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            background-color: #fdfdff;
+            border-radius: 8px;
             margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .filter-group label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            color: #495057;
+        }
+        .filter-group input, .filter-group select {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1em;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .filter-group input:focus, .filter-group select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+        
+        /* Botones de vista integrados en los filtros */
+        .view-controls {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
         }
         .view-controls button {
             padding: 10px 20px;
             font-size: 1em;
-            cursor: pointer;
+            font-weight: 600;
+            border: 1px solid var(--secondary-color);
+            background-color: #fff;
+            color: var(--secondary-color);
             border-radius: 5px;
-            border: 1px solid #007bff;
+            cursor: pointer;
             transition: background-color 0.2s, color 0.2s;
         }
         .view-controls button.active {
-            background-color: #007bff;
-            color: white;
+            background-color: var(--secondary-color);
+            color: #fff;
         }
-        .view-controls button:not(.active) {
-            background-color: white;
-            color: #007bff;
-        }
+        
+        /* Barra de estadísticas y leyenda */
         .table-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 15px;
             padding: 0 5px;
-            color: #6c757d;
+        }
+        .record-count {
+            font-weight: 600;
+            color: var(--primary-color);
         }
         .legend {
             display: flex;
             gap: 15px;
-            align-items: center;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
             font-size: 0.9em;
+            align-items: center;
         }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
         .legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
+            width: 15px;
+            height: 15px;
+            border-radius: 4px; /* Cuadrado redondeado como en la imagen */
         }
+
         .table-container {
             overflow-x: auto;
+            max-height: 70vh; /* Permite scroll vertical si la tabla es muy larga */
         }
         table {
             width: 100%;
             border-collapse: collapse;
+            white-space: nowrap;
         }
         th, td {
             padding: 12px 15px;
             text-align: left;
-            border: 1px solid var(--color-border);
-            white-space: nowrap;
+            border-bottom: 1px solid var(--border-color);
         }
         th {
-            background-color: var(--color-header-bg);
-            color: white;
-            cursor: pointer;
+            background-color: var(--header-bg);
+            color: var(--header-font);
             position: sticky;
             top: 0;
             z-index: 10;
+            cursor: pointer;
         }
-        th:hover {
-            background-color: #495057;
-        }
+        th:hover { background-color: #495057; }
         .sort-indicator::after {
             content: '';
             display: inline-block;
@@ -155,63 +181,79 @@
             border-left: 5px solid transparent;
             border-right: 5px solid transparent;
         }
-        .sort-asc::after {
-            border-bottom: 5px solid white;
-        }
-        .sort-desc::after {
-            border-top: 5px solid white;
-        }
-        td {
-            background-color: var(--container-bg);
-        }
-        tr:nth-child(even) td {
-            background-color: #f8f9fa;
-        }
+        .sort-asc::after { border-bottom: 5px solid white; }
+        .sort-desc::after { border-top: 5px solid white; }
+
+        tbody tr:hover { background-color: var(--row-hover); }
+
+        /* Estilo de "píldora" para las calificaciones */
         td.numeric { text-align: center; }
-        .bg-superior { background-color: rgba(40, 167, 69, 0.8); color: white; font-weight: bold; }
-        .bg-alto { background-color: rgba(12, 13, 14, 0.8); color: white; font-weight: bold; }
-        .bg-basico { background-color: rgba(12, 13, 14, 0.7); color: #333; }
-        .bg-bajo { background-color: rgba(12, 13, 14, 0.8); color: white; font-weight: bold; }
+        .score {
+            font-weight: 600;
+            border-radius: 4px;
+            padding: 5px 10px;
+            display: inline-block;
+            min-width: 30px;
+        }
+        .score-superior { background-color: var(--score-superior-bg); color: var(--score-superior-text); }
+        .score-alto { background-color: var(--score-alto-bg); color: var(--score-alto-text); }
+        .score-basico { background-color: var(--score-basico-bg); color: var(--score-basico-text); }
+        .score-bajo { background-color: var(--score-bajo-bg); color: var(--score-bajo-text); }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header class="header">
-        <img src="logoeducate.png" alt="Logo">
-        <div class="school-info">
-            <h1 id="school-name">Cargando...</h1>
-            <p id="school-dane"></p>
-        </div>
+        <img src="logoeducate.png" alt="Logo" onerror="this.style.display='none'">
+        <h1 id="school-name">Cargando...</h1>
+        <p id="school-dane"></p>
     </header>
 
     <div class="filters-card">
-        <select id="grade-filter"><option value="">Todos los Grados</option></select>
-        <select id="group-filter"><option value="">Todos los Grupos</option></select>
-        <select id="jornada-filter"><option value="">Todas las Jornadas</option></select>
-        <select id="test-filter"><option value="">Todas las Pruebas</option></select>
-        <input type="text" id="student-search" placeholder="Escriba un nombre...">
-        <select id="performance-filter">
-            <option value="">Mostrar todos</option>
-            <option value="superior">Superior (3.81 - 5.0)</option>
-            <option value="alto">Alto (3.21 - 3.8)</option>
-            <option value="basico">Básico (2.51 - 3.2)</option>
-            <option value="bajo">Bajo (&lt;= 2.5)</option>
-        </select>
-    </div>
-
-    <div class="view-controls">
-        <button id="view-areas" class="active">Vista por Áreas</button>
-        <button id="view-components">Vista por Componentes</button>
+        <div class="filter-group">
+            <label for="grade-filter">Grado</label>
+            <select id="grade-filter"><option value="">Todos los Grados</option></select>
+        </div>
+        <div class="filter-group">
+            <label for="group-filter">Grupo</label>
+            <select id="group-filter"><option value="">Todos los Grupos</option></select>
+        </div>
+        <div class="filter-group">
+            <label for="jornada-filter">Jornada</label>
+            <select id="jornada-filter"><option value="">Todas las Jornadas</option></select>
+        </div>
+        <div class="filter-group">
+            <label for="test-filter">Prueba</label>
+            <select id="test-filter"><option value="">Todas las Pruebas</option></select>
+        </div>
+        <div class="filter-group">
+            <label for="student-search">Buscar Estudiante</label>
+            <input type="text" id="student-search" placeholder="Escriba un nombre...">
+        </div>
+        <div class="filter-group">
+            <label for="performance-filter">Desempeño General</label>
+            <select id="performance-filter">
+                <option value="">Mostrar todos</option>
+                <option value="superior">Superior (3.81 - 5.0)</option>
+                <option value="alto">Alto (3.21 - 3.8)</option>
+                <option value="basico">Básico (2.51 - 3.2)</option>
+                <option value="bajo">Bajo (&lt;= 2.5)</option>
+            </select>
+        </div>
+        <div class="view-controls">
+            <button id="view-areas" class="active">Vista por Áreas</button>
+            <button id="view-components">Vista por Componentes</button>
+        </div>
     </div>
 
     <div class="table-header">
-        <span id="record-count"></span>
+        <span id="record-count" class="record-count"></span>
         <div class="legend">
-            <div class="legend-item"><div class="legend-color" style="background-color: var(--color-superior);"></div> Superior</div>
-            <div class="legend-item"><div class="legend-color" style="background-color: var(--color-alto);"></div> Alto</div>
-            <div class="legend-item"><div class="legend-color" style="background-color: var(--color-basico);"></div> Básico</div>
-            <div class="legend-item"><div class="legend-color" style="background-color: var(--color-bajo);"></div> Bajo</div>
+            <div class="legend-item"><div class="legend-color" style="background-color: var(--score-superior-bg);"></div> Superior</div>
+            <div class="legend-item"><div class="legend-color" style="background-color: var(--score-alto-bg);"></div> Alto</div>
+            <div class="legend-item"><div class="legend-color" style="background-color: var(--score-basico-bg);"></div> Básico</div>
+            <div class="legend-item"><div class="legend-color" style="background-color: var(--score-bajo-bg);"></div> Bajo</div>
         </div>
     </div>
 
@@ -258,6 +300,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 fetch('registros.csv')
             ]);
             
+            if (!metaResponse.ok || !recordsResponse.ok) {
+                throw new Error('No se pudo acceder a los archivos de datos.');
+            }
+            
             const metadata = await metaResponse.json();
             const csvText = await recordsResponse.text();
             
@@ -269,7 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderTable();
         } catch (error) {
             console.error('Error al cargar los datos:', error);
-            alert('No se pudieron cargar los archivos de datos. Asegúrate de que metadata.json y registros.csv estén en la misma carpeta.');
+            document.getElementById('record-count').textContent = 'Error al cargar los datos. Verifique la consola para más detalles.';
         }
     };
 
@@ -300,6 +346,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const populateFilters = (filters) => {
         const populateSelect = (id, options) => {
             const select = document.getElementById(id);
+            if (!options) return; // Protección por si falta una clave en metadata
             while (select.options.length > 1) { select.remove(1); }
             options.forEach(option => {
                 const opt = document.createElement('option');
@@ -309,22 +356,22 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         populateSelect('grade-filter', filters.grades);
         populateSelect('group-filter', filters.groups);
-        populateSelect('jornada-filter', filters.jornadas);
+        populateSelect('jornada-filter', filters.jornadas); // Se mantiene la jornada
         populateSelect('test-filter', filters.tests);
     };
 
     const getPerformanceClass = (value) => {
-        if (value >= 3.81) return 'bg-superior';
-        if (value >= 3.21) return 'bg-alto';
-        if (value >= 2.51) return 'bg-basico';
-        if (value >= 1) return 'bg-bajo';
+        if (value >= 3.81) return 'score-superior';
+        if (value >= 3.21) return 'score-alto';
+        if (value >= 2.51) return 'score-basico';
+        if (value >= 1) return 'score-bajo';
         return '';
     };
 
     const applyFilters = () => {
         const grade = document.getElementById('grade-filter').value;
         const group = document.getElementById('group-filter').value;
-        const jornada = document.getElementById('jornada-filter').value;
+        const jornada = document.getElementById('jornada-filter').value; // Se lee el filtro de jornada
         const test = document.getElementById('test-filter').value;
         const search = document.getElementById('student-search').value.toLowerCase();
         const performance = document.getElementById('performance-filter').value;
@@ -333,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const studentMatch = row.Estudiante.toLowerCase().includes(search);
             const gradeMatch = !grade || row.Grado === grade;
             const groupMatch = !group || row.Grupo === group;
-            const jornadaMatch = !jornada || row.Jornada === jornada;
+            const jornadaMatch = !jornada || row.Jornada === jornada; // Se aplica el filtro de jornada
             const testMatch = !test || row.Prueba === test;
 
             let performanceMatch = true;
@@ -399,8 +446,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (value !== undefined && value !== null && value !== '') {
                     if (NUMERIC_COLUMNS.has(key)) {
-                        td.textContent = value.toFixed(1).replace('.', ',');
-                        td.classList.add('numeric', getPerformanceClass(value));
+                        // **CAMBIO CLAVE**: Se usa un <span> para el estilo "píldora"
+                        td.classList.add('numeric');
+                        const span = document.createElement('span');
+                        span.className = `score ${getPerformanceClass(value)}`;
+                        span.textContent = value.toFixed(1).replace('.', ',');
+                        td.appendChild(span);
                     } else {
                         td.textContent = value;
                     }
