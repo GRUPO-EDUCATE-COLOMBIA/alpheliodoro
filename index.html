@@ -327,7 +327,7 @@
                     const key = header[j].trim();
                     const value = values[j] ? values[j].trim() : '';
                     
-                    if (key === 'Grado' || key === 'Grupo') {
+                    if (key === 'Grado' || key === 'Grupo' || key === 'Jornada') {
                         record[key] = value;
                     } else if (!isNaN(value) && value !== '') {
                         record[key] = parseFloat(value);
