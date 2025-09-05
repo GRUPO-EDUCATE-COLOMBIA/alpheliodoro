@@ -200,7 +200,7 @@
 
     <div class="container">
         <header>
-            <img id="schoolLogo" src="logoeducate.png" alt="Logo de la Empresa" onerror="this.style.display='none'">
+            <img id="schoolLogo" src="./logoeducate.png" alt="Logo de la Empresa" onerror="this.style.display='none'">
             <h1 id="schoolNameHeader">Informe Interactivo de Resultados</h1>
             <p id="schoolInfoSubHeader"></p>
         </header>
@@ -213,6 +213,10 @@
             <div class="filter-group">
                 <label for="groupFilter">Grupo</label>
                 <select id="groupFilter"></select>
+            </div>
+             <div class="filter-group">
+                <label for="jornadaFilter">Jornada</label>
+                <select id="jornadaFilter"></select>
             </div>
             <div class="filter-group">
                 <label for="testFilter">Prueba</label>
@@ -257,19 +261,12 @@
     </div>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async function() {
         
-        // ==================================================================
-        // INICIO DE DATOS: PEGAR AQUÍ EL BLOQUE DE DATOS
-        // ==================================================================
-        const allDataJSON = `--- PEGA AQUÍ EL BLOQUE DE DATOS ---`;
-        // ==================================================================
-        // FIN DE DATOS
-        // ==================================================================
-
-        let allData = {};
+        let allRecords = [];
         const gradeFilter = document.getElementById('gradeFilter');
         const groupFilter = document.getElementById('groupFilter');
+        const jornadaFilter = document.getElementById('jornadaFilter');
         const testFilter = document.getElementById('testFilter');
         const searchStudent = document.getElementById('searchStudent');
         const averageFilter = document.getElementById('averageFilter');
@@ -288,6 +285,7 @@
             areas: [
                 { key: 'Grado', label: 'Grado' },
                 { key: 'Grupo', label: 'Grupo' },
+                { key: 'Jornada', label: 'Jornada' },
                 { key: 'Prueba', label: 'Prueba' },
                 { key: 'Estudiante', label: 'Estudiante' },
                 { key: 'Promedio_General', label: 'Prom. General' },
@@ -300,6 +298,7 @@
             components: [
                 { key: 'Grado', label: 'Grado' },
                 { key: 'Grupo', label: 'Grupo' },
+                { key: 'Jornada', label: 'Jornada' },
                 { key: 'Prueba', label: 'Prueba' },
                 { key: 'Estudiante', label: 'Estudiante' },
                 { key: 'Promedio_General', label: 'Prom. General' },
@@ -316,15 +315,64 @@
             ]
         };
         
+        function parseCSV(text) {
+            const lines = text.trim().replace(/\r/g, '').split('\n');
+            const header = lines[0].split(';');
+            const records = [];
+            for (let i = 1; i < lines.length; i++) {
+                if (lines[i].trim() === '') continue;
+                const values = lines[i].split(';');
+                const record = {};
+                for (let j = 0; j < header.length; j++) {
+                    const key = header[j].trim();
+                    const value = values[j] ? values[j].trim() : '';
+                    
+                    if (key === 'Grado' || key === 'Grupo') {
+                        record[key] = value;
+                    } else if (!isNaN(value) && value !== '') {
+                        record[key] = parseFloat(value);
+                    } else {
+                        record[key] = value === '' ? null : value;
+                    }
+                }
+                records.push(record);
+            }
+            return records;
+        }
+
+        async function loadData() {
+            try {
+                const [metaResponse, recordsResponse] = await Promise.all([
+                    fetch('./metadata.json'),
+                    fetch('./registros.csv')
+                ]);
+
+                if (!metaResponse.ok) throw new Error(`Error al cargar metadata.json: ${metaResponse.statusText}`);
+                if (!recordsResponse.ok) throw new Error(`Error al cargar registros.csv: ${recordsResponse.statusText}`);
+
+                const metadata = await metaResponse.json();
+                const recordsText = await recordsResponse.text();
+                
+                allRecords = parseCSV(recordsText);
+                
+                initialize(metadata);
+
+            } catch (error) {
+                statsCounter.textContent = `Error: No se pudieron cargar los archivos de datos. Asegúrese de que 'index.html', 'metadata.json' y 'registros.csv' estén en la misma carpeta.`;
+                console.error(error);
+            }
+        }
+
         function populateHeader(metadata) {
             schoolNameHeader.textContent = metadata.schoolName;
             schoolInfoSubHeader.textContent = `DANE: ${metadata.schoolDane}`;
         }
 
         function populateFilters(metadata) {
-            const { grades, groups, tests } = metadata.filters;
+            const { grades, groups, tests, jornadas } = metadata.filters;
             gradeFilter.innerHTML = ['Todos', ...grades].map(g => `<option value="${g}">${g}</option>`).join('');
             groupFilter.innerHTML = ['Todos', ...groups].map(g => `<option value="${g}">${g}</option>`).join('');
+            jornadaFilter.innerHTML = ['Todas', ...jornadas].map(j => `<option value="${j}">${j}</option>`).join('');
             testFilter.innerHTML = ['Todas', ...tests].map(t => `<option value="${t}">${t}</option>`).join('');
         }
 
@@ -361,7 +409,7 @@
                 bodyHTML += '</tr>';
             });
             tableBody.innerHTML = bodyHTML;
-            statsCounter.textContent = `Mostrando ${data.length} de ${allData.records.length} registros.`;
+            statsCounter.textContent = `Mostrando ${data.length} de ${allRecords.length} registros.`;
             
             document.querySelectorAll('#tableHeader th').forEach(th => {
                 th.addEventListener('click', () => {
@@ -378,13 +426,16 @@
         }
 
         function applyFilters() {
-            let filteredData = [...allData.records];
+            let filteredData = [...allRecords];
 
             if (gradeFilter.value !== 'Todos') {
                 filteredData = filteredData.filter(s => String(s.Grado) === gradeFilter.value);
             }
             if (groupFilter.value !== 'Todos') {
                 filteredData = filteredData.filter(s => String(s.Grupo) === groupFilter.value);
+            }
+            if (jornadaFilter.value !== 'Todas') {
+                filteredData = filteredData.filter(s => s.Jornada === jornadaFilter.value);
             }
             if (testFilter.value !== 'Todas') {
                 filteredData = filteredData.filter(s => s.Prueba === testFilter.value);
@@ -429,19 +480,11 @@
             renderTable(filteredData);
         }
         
-        function initialize() {
-            try {
-                allData = JSON.parse(allDataJSON);
-            } catch (e) {
-                statsCounter.textContent = "Error: Los datos no se pudieron procesar. Verifique que el bloque de datos se haya pegado correctamente.";
-                console.error("Error parsing JSON data:", e);
-                return;
-            }
-
-            populateHeader(allData.metadata);
-            populateFilters(allData.metadata);
+        function initialize(metadata) {
+            populateHeader(metadata);
+            populateFilters(metadata);
             applyFilters();
-            [gradeFilter, groupFilter, testFilter, averageFilter].forEach(el => {
+            [gradeFilter, groupFilter, jornadaFilter, testFilter, averageFilter].forEach(el => {
                 el.addEventListener('change', applyFilters);
             });
             searchStudent.addEventListener('input', applyFilters);
@@ -461,7 +504,7 @@
             });
         }
 
-        initialize();
+        loadData();
     });
     </script>
 </body>
